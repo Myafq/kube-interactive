@@ -21,6 +21,13 @@ func check(e error) {
 var hash string = "123456789"
 
 func main() {
+	// check for hackers
+	_, kubeenv := os.LookupEnv("KUBERNETES_SERVICE_HOST")
+	if !kubeenv {
+		fmt.Println("Trying to hack a test, huh? You shouldn't probably do that.")
+		os.Exit(1)
+	}
+	// subcommands and args
 	configMap := flag.NewFlagSet("ConfigMap", flag.ExitOnError)
 	configMapTask := configMap.String("t", "Zero", "Number of ConfigMap task")
 	if len(os.Args) < 2 {
@@ -51,7 +58,7 @@ func ConfigMap(t string) {
 		fmt.Println("The value of GRIDU_CONFIGMAP_ENV is", envVar)
 		if envVar == "KUBERNETES_IS_VERY_FUN" {
 			hasher := sha1.New()
-			hasher.Write([]byte("first" + hash))
+			hasher.Write([]byte(t + hash))
 			answer := hex.EncodeToString(hasher.Sum(nil))
 			fmt.Println("Everything is looks like expected. Here is the correct answer:", answer[:8])
 		} else {
@@ -69,7 +76,29 @@ func ConfigMap(t string) {
 		} else {
 			fmt.Println("File content is not equal to KUBERNETES_IS_VERY_FUN \nTry to change your configmap or pod specification.")
 		}
-
+	case "third":
+		envVar := os.Getenv("GRIDU_SECRET_ENV")
+		fmt.Println("The value of GRIDU_SECRET_ENV is", envVar)
+		if envVar == "KUBERNETES_IS_VERY_SECURE" {
+			hasher := sha1.New()
+			hasher.Write([]byte(t + hash))
+			answer := hex.EncodeToString(hasher.Sum(nil))
+			fmt.Println("Everything is looks like expected. Here is the correct answer:", answer[:8])
+		} else {
+			fmt.Println("Env variable value is not equal to KUBERNETES_IS_VERY_SECURE \nTry to change your secret or pod specification.")
+		}
+	case "fourth":
+		fdat, err := ioutil.ReadFile("/mnt/GRIDU_SECRET_ENV")
+		check(err)
+		fmt.Println("Content of the /mnt/GRIDU_SECRET_ENV:\n", string(fdat))
+		if string(fdat) == "KUBERNETES_IS_VERY_SECURE" {
+			hasher := sha1.New()
+			hasher.Write([]byte(t + hash))
+			answer := hex.EncodeToString(hasher.Sum(nil))
+			fmt.Println("Everything is looks like expected. Here is the correct answer:", answer[:8])
+		} else {
+			fmt.Println("File content is not equal to KUBERNETES_IS_VERY_SECURE \nTry to change your secret or pod specification.")
+		}
 	}
 
 }
