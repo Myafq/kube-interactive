@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -46,11 +48,19 @@ func ConfigMap(t string) {
 	switch t {
 	case "first":
 		envVar := os.Getenv("GRIDU_CONFIGMAP_ENV")
-		fmt.Println("The decoded value of GRIDU_CONFIGMAP_ENV:", envVar)
+		fmt.Println("The value of GRIDU_CONFIGMAP_ENV is", envVar)
+		if envVar == "KUBERNETES_IS_VERY_FUN" {
+			hasher := sha1.New()
+			hasher.Write([]byte("first" + hash))
+			answer := hex.EncodeToString(hasher.Sum(nil))
+			fmt.Println("Everything is looks like expected. Here is the correct answer:", answer[:8])
+		} else {
+			fmt.Println("Env variable value is not equal to KUBERNETES_IS_VERY_FUN \nTry to change your configmap or pod specification.")
+		}
 	case "second":
-		fdat, err := ioutil.ReadFile("/mnt/configmap.txt")
+		fdat, err := ioutil.ReadFile("/mnt/GRIDU_CONFIGMAP_ENV")
 		check(err)
-		fmt.Println("Content of the /mnt/configmap.txt:\n", string(fdat))
+		fmt.Println("Content of the /mnt/GRIDU_CONFIGMAP_ENV:\n", string(fdat))
 
 	}
 
