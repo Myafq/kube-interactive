@@ -32,6 +32,9 @@ func main() {
 	// subcommands and args
 	config := flag.NewFlagSet("config", flag.ExitOnError)
 	configTask := config.String("t", "Zero", "Number of ConfigMap task")
+	wl := flag.NewFlagSet("workloads", flag.ExitOnError)
+	wlTask := wl.String("t", "Zero", "Number of Workloads task")
+
 	if len(os.Args) < 2 {
 		fmt.Println(expectation)
 		os.Exit(1)
@@ -42,7 +45,8 @@ func main() {
 		config.Parse(os.Args[2:])
 		ConfigCheck(*configTask)
 	case "workloads":
-		fmt.Println("Placeholder.")
+		wl.Parse(os.Args[2:])
+		WorkLoads(*wlTask)
 	default:
 		fmt.Println(expectation)
 		os.Exit(1)
