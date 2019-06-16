@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -40,6 +39,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	http.HandleFunc("/", handler)
+	http.HandleFunc("/hostname", getHostname)
+	go http.ListenAndServe(":8084", nil)
+
 	switch os.Args[1] {
 	case "config":
 		config.Parse(os.Args[2:])
@@ -51,10 +54,7 @@ func main() {
 		fmt.Println(expectation)
 		os.Exit(1)
 	}
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/hostname", getHostname)
-	log.Fatal(http.ListenAndServe(":8084", nil))
-
+	time.Sleep(120 * time.Minute)
 }
 func WorkLoads(t string) {
 	switch t {
@@ -102,6 +102,7 @@ func ConfigCheck(t string) {
 		} else {
 			fmt.Println("Env variable value is not equal to KUBERNETES_IS_VERY_FUN \nTry to change your configmap or pod specification.")
 		}
+
 	case "second":
 		fdat, err := ioutil.ReadFile("/mnt/GRIDU_CONFIGMAP_ENV")
 		check(err)
