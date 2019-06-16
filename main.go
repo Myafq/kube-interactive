@@ -97,12 +97,12 @@ func WorkLoads(t string) {
 			fmt.Println("This is third instance of statefullset! So here is ne answer:", answer[:8])
 		}
 	case "second":
-		firstRun, exists = os.LookupEnv("FIRST_RUN_HASH")
+		firstRun, exists := os.LookupEnv("FIRST_RUN_HASH")
 		hasher := sha1.New()
 		hasher.Write([]byte("deploy" + t + hash))
 		answer := hex.EncodeToString(hasher.Sum(nil))
 		if !exists {
-			fmt.Println("Seems like this is first version of deployment.\n So here is your FIRST_RUN_HASH:" answer)
+			fmt.Println("Seems like this is first version of deployment.\n So here is your FIRST_RUN_HASH:", answer)
 			os.Exit(0)
 		}
 		if firstRun != answer {
@@ -111,7 +111,7 @@ func WorkLoads(t string) {
 		}
 		hasher.Write([]byte("success" + t + hash))
 		ans := hex.EncodeToString(hasher.Sum(nil))
-		fmt.Println("FIRST_RUN_HASH is correct. So you probably has updated your deployment.\nGood job! Here's your answer:", ans[:8] )
+		fmt.Println("FIRST_RUN_HASH is correct. So you probably has updated your deployment.\nGood job! Here's your answer:", ans[:8])
 	}
 }
 func ConfigCheck(t string) {
