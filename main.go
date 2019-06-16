@@ -1,10 +1,13 @@
 package main
 
-import "os"
-import "fmt"
-import "flag"
-
-import "io/ioutil"
+import (
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+)
 
 func check(e error) {
 	if e != nil {
@@ -33,6 +36,8 @@ func main() {
 		fmt.Println("expected 'foo' or 'bar' subcommands")
 		os.Exit(1)
 	}
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe(":8084", nil))
 
 }
 
@@ -49,4 +54,8 @@ func ConfigMap(t string) {
 
 	}
 
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
