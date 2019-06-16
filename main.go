@@ -103,7 +103,6 @@ func WorkLoads(t string) {
 		answer := hex.EncodeToString(hasher.Sum(nil))
 		if !exists {
 			fmt.Println("Seems like this is first version of deployment.\n So here is your FIRST_RUN_HASH:", answer)
-			os.Exit(0)
 		}
 		if firstRun != answer {
 			fmt.Println("FIRST_RUN_HASH is not correct!\nCheck your spec, or rerun deployment without env variables.")
