@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"net"
 )
 
 func check(e error) {
@@ -68,10 +69,10 @@ func WorkLoads(t string) {
 		for len(cluster) < 3 {
 			fmt.Println("Looking for cluster members on", "http://"+svc+":8084")
 			time.Sleep(5 * time.Second)
-			for i := 0; i < 10; i++ {
+			ips, err := net.LookupHost(svc)
+			for ip range ips {
 				time.Sleep(1 * time.Second)
-
-				clusterMember, err := http.Get("http://" + svc + ":8084/hostname")
+				clusterMember, err := http.Get("http://" + ip + ":8084/hostname")
 				if err != nil {
 					fmt.Println("Error occured while discovering cluster members:", err)
 					continue
