@@ -69,11 +69,11 @@ func WorkLoads(t string) {
 		for len(cluster) < 3 {
 			fmt.Println("Looking for cluster members on", "http://"+svc+":8084")
 			time.Sleep(5 * time.Second)
-			ips, _ := net.LookupHost(svc)
+			ips, _ := net.LookupIP(svc)
 
-			for ip := range ips {
+			for _, ip := range ips {
 				time.Sleep(1 * time.Second)
-				clusterMember, err := http.Get("http://" + string(ip) + ":8084/hostname")
+				clusterMember, err := http.Get("http://" + ip.String() + ":8084/hostname")
 				if err != nil {
 					fmt.Println("Error occured while discovering cluster members:", err)
 					continue
