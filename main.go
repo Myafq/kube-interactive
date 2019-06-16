@@ -73,6 +73,7 @@ func WorkLoads(t string) {
 
 				clusterMember, err := http.Get("http://" + svc + ":8084")
 				if err != nil {
+					fmt.Println("Error occured while discovering cluster members:", err)
 					continue
 				}
 				defer clusterMember.Body.Close()
