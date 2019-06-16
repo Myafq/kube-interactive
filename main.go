@@ -101,16 +101,17 @@ func WorkLoads(t string) {
 		hasher := sha1.New()
 		hasher.Write([]byte("deploy" + t + hash))
 		answer := hex.EncodeToString(hasher.Sum(nil))
-		if !exists {
+		if exists {
+			if firstRun != answer {
+				fmt.Println("FIRST_RUN_HASH is not correct!\nCheck your spec, or rerun deployment without env variables.")
+				os.Exit(1)
+			}
+			hasher.Write([]byte("success" + t + hash))
+			ans := hex.EncodeToString(hasher.Sum(nil))
+			fmt.Println("FIRST_RUN_HASH is correct. So you probably has updated your deployment.\nGood job! Here's your answer:", ans[:8])
+		} else {
 			fmt.Println("Seems like this is first version of deployment.\n So here is your FIRST_RUN_HASH:", answer)
 		}
-		if firstRun != answer {
-			fmt.Println("FIRST_RUN_HASH is not correct!\nCheck your spec, or rerun deployment without env variables.")
-			os.Exit(1)
-		}
-		hasher.Write([]byte("success" + t + hash))
-		ans := hex.EncodeToString(hasher.Sum(nil))
-		fmt.Println("FIRST_RUN_HASH is correct. So you probably has updated your deployment.\nGood job! Here's your answer:", ans[:8])
 	}
 }
 func ConfigCheck(t string) {
