@@ -61,6 +61,14 @@ func ConfigMap(t string) {
 		fdat, err := ioutil.ReadFile("/mnt/GRIDU_CONFIGMAP_ENV")
 		check(err)
 		fmt.Println("Content of the /mnt/GRIDU_CONFIGMAP_ENV:\n", string(fdat))
+		if fdat == "KUBERNETES_IS_VERY_FUN" {
+			hasher := sha1.New()
+			hasher.Write([]byte("second" + hash))
+			answer := hex.EncodeToString(hasher.Sum(nil))
+			fmt.Println("Everything is looks like expected. Here is the correct answer:", answer[:8])
+		} else {
+			fmt.Println("File content is not equal to KUBERNETES_IS_VERY_FUN \nTry to change your configmap or pod specification.")
+		}
 
 	}
 
