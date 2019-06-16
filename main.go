@@ -61,7 +61,7 @@ func ConfigMap(t string) {
 		fdat, err := ioutil.ReadFile("/mnt/GRIDU_CONFIGMAP_ENV")
 		check(err)
 		fmt.Println("Content of the /mnt/GRIDU_CONFIGMAP_ENV:\n", string(fdat))
-		if fdat == "KUBERNETES_IS_VERY_FUN" {
+		if string(fdat) == "KUBERNETES_IS_VERY_FUN" {
 			hasher := sha1.New()
 			hasher.Write([]byte("second" + hash))
 			answer := hex.EncodeToString(hasher.Sum(nil))
