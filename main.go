@@ -66,9 +66,11 @@ func WorkLoads(t string) {
 		}
 		cluster := make(map[string]bool)
 		for len(cluster) < 3 {
+			fmt.Println("Looking for cluster members on", "http://"+svc+":8084")
 			time.Sleep(5 * time.Second)
 			for i := 0; i < 10; i++ {
 				time.Sleep(1 * time.Second)
+
 				clusterMember, err := http.Get("http://" + svc + ":8084")
 				if err != nil {
 					continue
@@ -76,6 +78,11 @@ func WorkLoads(t string) {
 				defer clusterMember.Body.Close()
 				body, _ := ioutil.ReadAll(clusterMember.Body)
 				cluster[string(body)] = true
+				currState := ""
+				for k := range cluster {
+					currState += k
+				}
+				fmt.Println("Current cluster members:", currState)
 			}
 		}
 		fmt.Println("We've got 3 instances of application online!")
