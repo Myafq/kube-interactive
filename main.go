@@ -52,6 +52,7 @@ func main() {
 		wl.Parse(os.Args[2:])
 		WorkLoads(*wlTask)
 	case "ingress":
+		fmt.Println("Listening on port 8085 for your answer requests)")
 		http.HandleFunc("/getTaskAnswer", getTaskAnswer)
 		log.Fatal(http.ListenAndServe(":8085", nil))
 	default:
@@ -176,13 +177,13 @@ func getHostname(w http.ResponseWriter, r *http.Request) {
 }
 func getTaskAnswer(w http.ResponseWriter, r *http.Request) {
 	header := r.Header.Get("X-Request-ID")
-	a := "You should use nginx ingress to get answer."
+	a := "You should use nginx ingress controller to get an answer."
 
 	if header != "" {
 		hasher := sha1.New()
 		hasher.Write([]byte("ingress" + hash))
 		answer := hex.EncodeToString(hasher.Sum(nil))
-		a = "Seems like Nginx Ingress is between us...\nGood job! Here's your answer: " + answer[:8]
+		a = "Seems like Nginx Ingress is between us...\nGood job! Here's your answer: " + answer[:8] + "\n"
 	}
 	fmt.Println(a)
 	fmt.Fprintf(w, a)
