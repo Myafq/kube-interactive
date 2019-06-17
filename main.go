@@ -35,7 +35,7 @@ func main() {
 	configTask := config.String("t", "Zero", "Number of the ConfigMap task")
 	wl := flag.NewFlagSet("workloads", flag.ExitOnError)
 	wlTask := wl.String("t", "Zero", "Number of the Workloads task")
-	ingress := flag.NewFlagSet("ingress", flag.ExitOnError)
+
 	if len(os.Args) < 2 {
 		fmt.Println(expectation)
 		os.Exit(1)
