@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func check(e error) {
 var hash string = "123456789"
 
 func main() {
-	expectation := "possible commands: config, workload, ingress"
+	expectation := "possible commands: config, workloads, ingress"
 	// check for hackers
 	_, kubeenv := os.LookupEnv("KUBERNETES_SERVICE_HOST")
 	if !kubeenv {
@@ -31,16 +32,15 @@ func main() {
 	}
 	// subcommands and args
 	config := flag.NewFlagSet("config", flag.ExitOnError)
-	configTask := config.String("t", "Zero", "Number of ConfigMap task")
+	configTask := config.String("t", "Zero", "Number of the ConfigMap task")
 	wl := flag.NewFlagSet("workloads", flag.ExitOnError)
-	wlTask := wl.String("t", "Zero", "Number of Workloads task")
-
+	wlTask := wl.String("t", "Zero", "Number of the Workloads task")
+	ingress := flag.NewFlagSet("ingress", flag.ExitOnError)
 	if len(os.Args) < 2 {
 		fmt.Println(expectation)
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/", handler)
 	http.HandleFunc("/hostname", getHostname)
 	go http.ListenAndServe(":8084", nil)
 
@@ -51,6 +51,9 @@ func main() {
 	case "workloads":
 		wl.Parse(os.Args[2:])
 		WorkLoads(*wlTask)
+	case "ingress":
+		http.HandleFunc("/getTaskAnswer", getTaskAnswer)
+		log.Fatal(http.ListenAndServe(":8085", nil))
 	default:
 		fmt.Println(expectation)
 		os.Exit(1)
@@ -108,7 +111,7 @@ func WorkLoads(t string) {
 			}
 			hasher.Write([]byte("success" + t + hash))
 			ans := hex.EncodeToString(hasher.Sum(nil))
-			fmt.Println("FIRST_RUN_HASH is correct. So you probably has updated your deployment.\nGood job! Here's your answer:", ans[:8])
+			fmt.Println("FIRST_RUN_HASH is correct. So you probably have updated your deployment.\nGood job! Here's your answer:", ans[:8])
 		} else {
 			fmt.Println("Seems like this is first version of deployment.\n So here is your FIRST_RUN_HASH:", answer)
 		}
@@ -170,6 +173,20 @@ func ConfigCheck(t string) {
 func getHostname(w http.ResponseWriter, r *http.Request) {
 	hm, _ := os.Hostname()
 	fmt.Fprintf(w, hm)
+}
+func getTaskAnswer(w http.ResponseWriter, r *http.Request) {
+	header := r.Header.Get("X-Request-ID")
+	a := "You should use nginx ingress to get answer."
+
+	if header != "" {
+		hasher := sha1.New()
+		hasher.Write([]byte("ingress" + hash))
+		answer := hex.EncodeToString(hasher.Sum(nil))
+		a = "Seems like Nginx Ingress is between us...\nGood job! Here's your answer: " + answer[:8]
+	}
+	fmt.Println(a)
+	fmt.Fprintf(w, a)
+
 }
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
